@@ -1,0 +1,338 @@
+{
+  "hora": {
+    "modulo": "Skills.hora",
+    "funcion": "obtener_hora",
+    "descripcion": "obtener la hora actual",
+    "ejemplos": [
+      {
+        "frase": "qué hora es"
+      }
+    ]
+  },
+  "tareas_pendientes": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "listar_tareas",
+    "descripcion": "decir las tareas pendientes que el usuario tiene guardadas en su base de datos",
+    "ejemplos": [
+      {
+        "frase": "qué tareas tengo pendientes"
+      },
+      {
+        "frase": "qué tengo por hacer"
+      },
+      {
+        "frase": "lee mis tareas"
+      }
+    ]
+  },
+  "tareas_describir": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "describir_tareas",
+    "descripcion": "dar la descripción o los detalles de una tarea guardada del usuario, buscándola por su nombre o por fecha",
+    "parametros": {
+      "titulo": {
+        "descripcion": "nombre de la tarea o palabras clave de su nombre",
+        "obligatorio": false
+      },
+      "fecha": {
+        "descripcion": "hoy, mañana, pasado mañana o fecha AAAA-MM-DD",
+        "obligatorio": false
+      }
+    },
+    "ejemplos": [
+      {
+        "frase": "qué hay de la tarea soldar Kyon",
+        "argumentos": {
+          "titulo": "soldar Kyon"
+        }
+      },
+      {
+        "frase": "de qué trata la tarea del osciloscopio",
+        "argumentos": {
+          "titulo": "osciloscopio"
+        }
+      },
+      {
+        "frase": "dame la descripción de mis tareas de mañana",
+        "argumentos": {
+          "fecha": "mañana"
+        }
+      }
+    ]
+  },
+  "tareas_agregar": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "agregar_tarea",
+    "descripcion": "guardar una tarea nueva en el calendario del usuario",
+    "parametros": {
+      "titulo": "nombre corto de la tarea",
+      "fecha": {
+        "descripcion": "hoy, mañana, pasado mañana o fecha AAAA-MM-DD",
+        "obligatorio": false
+      },
+      "hora": {
+        "descripcion": "hora en formato HH:MM",
+        "obligatorio": false
+      },
+      "descripcion": {
+        "descripcion": "detalles de la tarea",
+        "obligatorio": false
+      }
+    },
+    "ejemplos": [
+      {
+        "frase": "agrega una tarea para mañana a las 10 de soldar Kyon, hay que cambiar el regulador",
+        "argumentos": {
+          "titulo": "soldar Kyon",
+          "fecha": "mañana",
+          "hora": "10:00",
+          "descripcion": "hay que cambiar el regulador"
+        }
+      }
+    ]
+  },
+  "tareas_completar": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "completar_tarea",
+    "descripcion": "marcar una tarea del usuario como hecha o completada",
+    "parametros": {
+      "tarea": "nombre de la tarea o su número"
+    },
+    "ejemplos": [
+      {
+        "frase": "marca como completada la tarea soldar Kyon",
+        "argumentos": {
+          "tarea": "soldar Kyon"
+        }
+      },
+      {
+        "frase": "ya terminé de revisar el osciloscopio",
+        "argumentos": {
+          "tarea": "revisar osciloscopio"
+        }
+      },
+      {
+        "frase": "completa la tarea 3",
+        "argumentos": {
+          "tarea": "3"
+        }
+      }
+    ]
+  },
+  "tareas_del_dia": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "tareas_del_dia",
+    "descripcion": "decir qué tareas tiene el usuario en un día concreto",
+    "parametros": {
+      "fecha": {
+        "descripcion": "hoy, mañana, pasado mañana o fecha AAAA-MM-DD",
+        "obligatorio": false
+      }
+    },
+    "ejemplos": [
+      {
+        "frase": "qué tareas tengo hoy",
+        "argumentos": {
+          "fecha": "hoy"
+        }
+      },
+      {
+        "frase": "qué tengo para mañana",
+        "argumentos": {
+          "fecha": "mañana"
+        }
+      }
+    ]
+  },
+  "tareas_semana": {
+    "modulo": "Skills.gestor_tareas",
+    "funcion": "tareas_de_la_semana",
+    "descripcion": "decir las tareas del usuario de los próximos siete días",
+    "ejemplos": [
+      {
+        "frase": "qué tareas tengo esta semana"
+      }
+    ]
+  },
+  "proyectos_abiertos": {
+    "modulo": "Skills.gestor_proyectos",
+    "funcion": "proyectos_abiertos",
+    "descripcion": "decir los proyectos que el usuario tiene abiertos en su base de datos",
+    "ejemplos": [
+      {
+        "frase": "qué proyectos tengo abiertos"
+      },
+      {
+        "frase": "en qué proyectos estoy trabajando"
+      }
+    ]
+  },
+  "materiales_buscar": {
+    "modulo": "Skills.gestor_materiales",
+    "funcion": "buscar_material",
+    "descripcion": "PREGUNTAR si hay disponible un material, componente o herramienta en el inventario del laboratorio, cuántas unidades quedan y dónde está. Nunca para agregar, guardar, reponer ni usar material",
+    "parametros": {
+      "material": "nombre del material o componente a buscar, en pocas palabras"
+    },
+    "ejemplos": [
+      {
+        "frase": "hay resistencias de 10k",
+        "argumentos": {
+          "material": "resistencia 10k"
+        }
+      },
+      {
+        "frase": "cuántos Arduino Nano nos quedan",
+        "argumentos": {
+          "material": "Arduino Nano"
+        }
+      },
+      {
+        "frase": "dónde está el cautín",
+        "argumentos": {
+          "material": "cautín"
+        }
+      }
+    ]
+  },
+  "materiales_agregar": {
+    "modulo": "Skills.gestor_materiales",
+    "funcion": "guardar_material",
+    "descripcion": "AGREGAR, guardar, registrar o reponer un material en el inventario del laboratorio (cuando el usuario dice agrega, añade, guarda, registra, compré o llegaron)",
+    "parametros": {
+      "material": "nombre del material o componente, en singular",
+      "cantidad": {
+        "descripcion": "unidades a sumar; 1 si no lo dice",
+        "tipo": "entero",
+        "obligatorio": false
+      },
+      "categoria": {
+        "descripcion": "tipo de material, por ejemplo Capacitores o Sensores",
+        "obligatorio": false
+      },
+      "ubicacion": {
+        "descripcion": "dónde se guarda, por ejemplo Cajón A1",
+        "obligatorio": false
+      }
+    },
+    "ejemplos": [
+      {
+        "frase": "agrega un capacitor a materiales",
+        "argumentos": {
+          "material": "capacitor"
+        }
+      },
+      {
+        "frase": "agrega 20 resistencias de 10k al inventario en el cajón A1",
+        "argumentos": {
+          "material": "resistencia 10k",
+          "cantidad": 20,
+          "ubicacion": "cajón A1"
+        }
+      },
+      {
+        "frase": "llegaron 3 Arduino Nano",
+        "argumentos": {
+          "material": "Arduino Nano",
+          "cantidad": 3
+        }
+      }
+    ]
+  },
+  "materiales_usar": {
+    "modulo": "Skills.gestor_materiales",
+    "funcion": "usar_material",
+    "descripcion": "DESCONTAR material del inventario porque el usuario lo usó, lo gastó, lo tomó o se quemó",
+    "parametros": {
+      "material": "nombre del material o componente, en singular",
+      "cantidad": {
+        "descripcion": "unidades usadas; 1 si no lo dice",
+        "tipo": "entero",
+        "obligatorio": false
+      }
+    },
+    "ejemplos": [
+      {
+        "frase": "usé 2 resistencias de 10k",
+        "argumentos": {
+          "material": "resistencia 10k",
+          "cantidad": 2
+        }
+      },
+      {
+        "frase": "se quemó un Arduino Nano",
+        "argumentos": {
+          "material": "Arduino Nano"
+        }
+      },
+      {
+        "frase": "saca un capacitor del inventario",
+        "argumentos": {
+          "material": "capacitor"
+        }
+      }
+    ]
+  },
+  "wikipedia": {
+    "modulo": "Skills.Wikipedia",
+    "funcion": "buscar_wikipedia",
+    "descripcion": "buscar información enciclopédica sobre personas, lugares, eventos o temas generales. Nunca para las tareas, pendientes o calendario del usuario ni para el inventario de materiales del laboratorio",
+    "parametros": {
+      "consulta": "tema a buscar, en pocas palabras"
+    },
+    "ejemplos": [
+      {
+        "frase": "quién fue Nikola Tesla",
+        "argumentos": {
+          "consulta": "Nikola Tesla"
+        }
+      }
+    ]
+  },
+  "spotify_reproducir": {
+    "modulo": "Skills.Spotify",
+    "funcion": "reproduce_pausa",
+    "descripcion": "reproducir o reanudar la música en Spotify (play)",
+    "ejemplos": [
+      {
+        "frase": "reproduce"
+      },
+      {
+        "frase": "dale play"
+      },
+      {
+        "frase": "reanuda la música"
+      }
+    ]
+  },
+  "spotify_pausar": {
+    "modulo": "Skills.Spotify",
+    "funcion": "reproduce_pausa",
+    "descripcion": "pausar la música de Spotify"
+  },
+  "spotify_siguiente": {
+    "modulo": "Skills.Spotify",
+    "funcion": "siguiente",
+    "descripcion": "No reproducir, solo pasar a la siguiente canción en Spotify"
+  },
+  "spotify_anterior": {
+    "modulo": "Skills.Spotify",
+    "funcion": "anterior",
+    "descripcion": "volver a la canción anterior en Spotify"
+  },
+  "spotify_cancion_actual": {
+    "modulo": "Skills.Spotify",
+    "funcion": "cancion_actual",
+    "descripcion": "decir qué canción está sonando en Spotify",
+    "ejemplos": [
+      {
+        "frase": "qué canción es esta"
+      }
+    ]
+  },
+  "spotify_estado": {
+    "modulo": "Skills.Spotify",
+    "funcion": "estado_reproduccion",
+    "descripcion": "decir si Spotify está reproduciendo o en pausa"
+  }
+}

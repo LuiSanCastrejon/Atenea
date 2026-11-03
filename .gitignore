@@ -1,0 +1,9 @@
+﻿models/
+*.gguf
+__pycache__/
+*.pyc
+*.db
+*.wav
+.env
+venv/
+.venv/

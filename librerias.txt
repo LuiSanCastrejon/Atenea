@@ -1,0 +1,45 @@
+LIBRERIAS DE ATENEA PARA WINDOWS
+Requisito: Python 3.11 de 64 bits (python.org, marca "Add python.exe to PATH")
+
+LISTA
+1.  numpy             - Manejo del audio como arreglos
+2.  sounddevice       - Micrófono y altavoces
+3.  soundfile         - Leer y escribir archivos WAV
+4.  faster-whisper    - Voz a texto (Whisper)
+5.  piper-tts         - Texto a voz (Piper)
+6.  webrtcvad-wheels  - Detectar cuándo hablas (VAD). Es webrtcvad ya compilado para Windows
+7.  openwakeword      - Detectar la palabra "alexa"
+8.  onnxruntime       - Motor que usa openwakeword en Windows
+9.  llama-cpp-python  - Ejecutar el LLM Qwen3 (se instala aparte, ver abajo)
+10. flask             - Servidor de la página web
+11. wikipedia         - Skill de Wikipedia
+12. spotipy           - Skill de Spotify
+
+(sqlite3, json, wave, os, re, etc. ya vienen con Python, no se instalan)
+
+
+COMANDOS (en la terminal, dentro de la carpeta de Atenea)
+
+1) Opcional pero recomendado: crear un entorno virtual
+
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+
+2) Instalar todo menos llama-cpp-python
+
+pip install numpy sounddevice soundfile faster-whisper piper-tts webrtcvad-wheels openwakeword onnxruntime flask wikipedia spotipy
+
+3) Instalar llama-cpp-python ya compilado (así no necesitas Visual Studio)
+
+pip install llama-cpp-python --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
+4) Instalar los modelos
+
+https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf
+https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/carlfm/x_low/es_ES-carlfm-x_low.onnx
+https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/carlfm/x_low/es_ES-carlfm-x_low.onnx.json
+
+NOTAS
+- No instales "webrtcvad" a secas, porque en Windows pide compilador. Usa "webrtcvad-wheels".
+- Si llama-cpp-python intenta compilar y falla, instala "Desktop development with C++"
+  de Visual Studio Build Tools y repite el paso 3.

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atenea</title>
+<style>
+  /* Colores de la cerámica y los templos griegos */
+  :root {
+    --marmol: #f4efe4;
+    --piedra: #e3d9c3;
+    --terracota: #b5532c;
+    --negro: #2a1d16;
+    --oro: #c9a227;
+    --egeo: #1f4e79;
+  }
+  /* Greca (meandro griego) dibujada en SVG, sin archivos externos */
+  .greca {
+    height: 24px;
+    background: var(--terracota) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 22h22V4H6v12h10V10h-4' fill='none' stroke='%23f4efe4' stroke-width='2.5'/%3E%3C/svg%3E") repeat-x center;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    color: var(--negro);
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.035) 0 2px, transparent 2px 60px),
+      linear-gradient(var(--piedra), #d6c9ad);
+  }
+  .templo {
+    max-width: 640px;
+    margin: 1.5em auto;
+    background: var(--marmol);
+    border-left: 14px solid var(--piedra);
+    border-right: 14px solid var(--piedra);
+    box-shadow: 0 6px 20px rgba(42,29,22,.25);
+  }
+  /* Frontón triangular del templo */
+  .fronton {
+    height: 60px;
+    background: var(--piedra);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    display: flex; align-items: flex-end; justify-content: center;
+    font-size: 1.8em; padding-bottom: 4px;
+  }
+  .contenido { padding: 1em 1.4em 1.4em; }
+  h1 {
+    text-align: center;
+    margin: .2em 0 0;
+    font-size: 2.4em;
+    letter-spacing: .35em;
+    color: var(--terracota);
+    text-transform: uppercase;
+  }
+  .lema { text-align: center; margin: 0 0 1em; font-style: italic; color: var(--egeo); }
+  #chat {
+    height: 400px;
+    overflow-y: auto;
+    padding: .6em;
+    margin-bottom: .8em;
+    background: #fbf8f1;
+    border: 2px solid var(--oro);
+    outline: 4px double var(--oro);
+    outline-offset: 3px;
+  }
+  .usuario, .atenea { margin: .5em 0; padding: .5em .8em; max-width: 80%; border-radius: 4px; }
+  .usuario {
+    margin-left: auto;
+    text-align: right;
+    background: var(--egeo);
+    color: var(--marmol);
+  }
+  .atenea {
+    background: var(--terracota);
+    color: var(--marmol);
+  }
+  .atenea::before { content: "🦉 "; }
+  form { display: flex; gap: .5em; flex-wrap: wrap; }
+  input {
+    flex: 1; min-width: 180px;
+    padding: .6em;
+    font: inherit;
+    background: #fffdf8;
+    border: 2px solid var(--oro);
+  }
+  input:focus { outline: 2px solid var(--egeo); }
+  button {
+    padding: .6em 1.1em;
+    font: inherit;
+    letter-spacing: .08em;
+    color: var(--marmol);
+    background: var(--negro);
+    border: 2px solid var(--oro);
+    cursor: pointer;
+  }
+  button:hover { background: var(--terracota); }
+  #estado, #estadoTarea, #estadoProyecto, #estadoMaterial { min-height: 1.2em; text-align: center; font-style: italic; color: var(--egeo); }
+  /* Sección de tareas */
+  h2 {
+    text-align: center;
+    margin: .2em 0 .8em;
+    letter-spacing: .25em;
+    color: var(--terracota);
+    text-transform: uppercase;
+  }
+  #formTarea, #formProyecto { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; }
+  #formTarea label, #formProyecto label { display: flex; flex-direction: column; font-size: .9em; color: var(--egeo); gap: .2em; }
+  #formTarea .ancho, #formProyecto .ancho { grid-column: 1 / -1; }
+  #formTarea input, #formTarea textarea, #formProyecto input, #formProyecto textarea { min-width: 0; }
+  textarea {
+    padding: .6em;
+    font: inherit;
+    resize: vertical;
+    background: #fffdf8;
+    border: 2px solid var(--oro);
+  }
+  .filtro { display: flex; justify-content: space-between; align-items: center; margin-top: 1em; font-size: .9em; color: var(--egeo); }
+  #listaTareas {
+    margin-top: .4em;
+    max-height: 400px;
+    overflow: auto;
+    background: #fbf8f1;
+    border: 2px solid var(--oro);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .9em; }
+  th {
+    position: sticky; top: 0;
+    background: var(--negro); color: var(--marmol);
+    text-align: left; padding: .4em; font-weight: normal; letter-spacing: .05em;
+  }
+  td { padding: .4em; border-top: 1px solid var(--piedra); vertical-align: top; }
+  td.descripcion { white-space: pre-wrap; word-break: break-word; }
+  tr.hecha td { color: #8a7d6b; text-decoration: line-through; }
+  .vacio { padding: .6em; font-style: italic; }
+  .filtro input { flex: none; min-width: 0; }
+  td.fecha { white-space: nowrap; }
+  td.estado { white-space: nowrap; }
+  td.estado label { cursor: pointer; }
+  /* Sección de proyectos: una tarjeta por proyecto */
+  details { margin-bottom: .6em; }
+  summary { cursor: pointer; color: var(--egeo); margin-bottom: .6em; }
+  #listaProyectos { margin-top: .4em; display: flex; flex-direction: column; gap: .7em; }
+  .proyecto {
+    padding: .7em .9em;
+    background: #fbf8f1;
+    border: 2px solid var(--oro);
+    border-left: 8px solid var(--terracota);
+  }
+  .proyecto.cerrado { border-left-color: #8a7d6b; color: #8a7d6b; }
+  .proyecto h3 { margin: 0; color: var(--terracota); font-size: 1.15em; }
+  .proyecto.cerrado h3 { color: #8a7d6b; text-decoration: line-through; }
+  .proyecto .inicio { font-size: .85em; font-style: italic; color: var(--egeo); margin: .1em 0 .4em; }
+  .proyecto p { margin: .3em 0; white-space: pre-wrap; word-break: break-word; }
+  .proyecto .etiqueta { font-weight: bold; color: var(--negro); }
+  .proyecto button { margin-top: .4em; padding: .3em .8em; font-size: .85em; }
+  #listaProyectos .vacio { background: #fbf8f1; border: 2px solid var(--oro); margin: 0; }
+  /* Sección de materiales */
+  #formMaterial { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; }
+  #formMaterial label { display: flex; flex-direction: column; font-size: .9em; color: var(--egeo); gap: .2em; }
+  #formMaterial .ancho { grid-column: 1 / -1; }
+  #formMaterial input, #formMaterial textarea { min-width: 0; }
+  .buscador { display: flex; gap: .5em; margin-top: 1em; }
+  .buscador input { min-width: 0; }
+  #listaMateriales {
+    margin-top: .4em;
+    max-height: 400px;
+    overflow: auto;
+    background: #fbf8f1;
+    border: 2px solid var(--oro);
+  }
+  tr.agotado td { color: #8a7d6b; }
+  td.cantidad { white-space: nowrap; text-align: center; }
+  td.cantidad button { padding: 0 .45em; font-size: .9em; line-height: 1.4; }
+  td.cantidad button:disabled { opacity: .35; cursor: default; background: var(--negro); }
+  td.cantidad .numero { display: inline-block; min-width: 2em; font-weight: bold; }
+  tr.agotado td.cantidad .numero { color: var(--terracota); }
+  td.estado input { flex: none; min-width: 0; width: 1.1em; height: 1.1em; vertical-align: middle; accent-color: var(--terracota); cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="templo">
+  <div class="fronton">🦉</div>
+  <div class="greca"></div>
+  <div class="contenido">
+    <h1>Atenea</h1>
+    <p class="lema">Diosa de la sabiduría, al servicio del laboratorio</p>
+    <div id="chat"></div>
+    <form id="formulario">
+      <input id="texto" placeholder="Consulta al oráculo..." autocomplete="off">
+      <button type="submit">Enviar</button>
+      <button type="button" id="microfono">🎤 Hablar</button>
+    </form>
+    <p id="estado"></p>
+  </div>
+  <div class="greca"></div>
+</div>
+
+<div class="templo">
+  <div class="greca"></div>
+  <div class="contenido">
+    <h2>Proyectos</h2>
+    <details>
+      <summary>Nuevo proyecto</summary>
+      <form id="formProyecto">
+        <label class="ancho">Nombre *
+          <input id="proyectoNombre" required placeholder="Robot seguidor de línea">
+        </label>
+        <label class="ancho">Descripción
+          <textarea id="proyectoDescripcion" rows="3" placeholder="De qué trata el proyecto"></textarea>
+        </label>
+        <label class="ancho">Objetivos
+          <textarea id="proyectoObjetivos" rows="3" placeholder="Un objetivo por línea"></textarea>
+        </label>
+        <label>Fecha de inicio
+          <input id="proyectoFecha" type="date">
+        </label>
+        <button type="submit">Agregar proyecto</button>
+      </form>
+    </details>
+    <p id="estadoProyecto"></p>
+    <div class="filtro">
+      <span id="conteoProyectos"></span>
+      <label><input type="checkbox" id="verCerrados"> Mostrar cerrados</label>
+    </div>
+    <div id="listaProyectos"></div>
+  </div>
+  <div class="greca"></div>
+</div>
+
+<div class="templo">
+  <div class="greca"></div>
+  <div class="contenido">
+    <h2>Tareas</h2>
+    <form id="formTarea">
+      <label class="ancho">Título *
+        <input id="tareaTitulo" required placeholder="Soldar placa del robot">
+      </label>
+      <label class="ancho">Descripción
+        <textarea id="tareaDescripcion" rows="3" placeholder="Detalles opcionales"></textarea>
+      </label>
+      <label>Fecha
+        <input id="tareaFecha" type="date">
+      </label>
+      <label>Hora
+        <input id="tareaHora" type="time">
+      </label>
+      <button type="submit" class="ancho">Agregar tarea</button>
+    </form>
+    <p id="estadoTarea"></p>
+    <div class="filtro">
+      <span id="conteoTareas"></span>
+      <label><input type="checkbox" id="verCompletadas" checked> Mostrar completadas</label>
+    </div>
+    <div id="listaTareas"></div>
+  </div>
+  <div class="greca"></div>
+</div>
+
+<div class="templo">
+  <div class="greca"></div>
+  <div class="contenido">
+    <h2>Materiales</h2>
+    <details>
+      <summary>Agregar material</summary>
+      <form id="formMaterial">
+        <label class="ancho">Nombre *
+          <input id="materialNombre" required placeholder="Resistencia 10k">
+        </label>
+        <label>Cantidad
+          <input id="materialCantidad" type="number" min="0" step="1" value="1">
+        </label>
+        <label>Categoría
+          <input id="materialCategoria" placeholder="Resistencias" list="categorias">
+        </label>
+        <label class="ancho">Ubicación
+          <input id="materialUbicacion" placeholder="Cajón A1">
+        </label>
+        <label class="ancho">Notas
+          <textarea id="materialNotas" rows="2" placeholder="1/4 W, tolerancia 5 %"></textarea>
+        </label>
+        <button type="submit" class="ancho">Agregar material</button>
+      </form>
+      <datalist id="categorias"></datalist>
+    </details>
+    <p id="estadoMaterial"></p>
+    <div class="buscador">
+      <input id="buscarMaterial" type="search" placeholder="¿Hay...? Busca por nombre, categoría o ubicación" autocomplete="off">
+    </div>
+    <div class="filtro">
+      <span id="conteoMateriales"></span>
+      <label><input type="checkbox" id="soloDisponibles"> Solo disponibles</label>
+    </div>
+    <div id="listaMateriales"></div>
+  </div>
+  <div class="greca"></div>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const estado = document.getElementById("estado");
+const botonMic = document.getElementById("microfono");
+
+function agregar(clase, texto) {
+  const p = document.createElement("p");
+  p.className = clase;
+  p.textContent = texto;
+  chat.appendChild(p);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function enviar(url, opciones) {
+  estado.textContent = "Pensando...";
+  try {
+    const r = await fetch(url, opciones);
+    const datos = await r.json();
+    if (datos.error) { estado.textContent = datos.error; return; }
+    if (opciones.body instanceof FormData) agregar("usuario", datos.usuario);
+    agregar("atenea", datos.respuesta);
+    if (datos.audio) new Audio("data:audio/wav;base64," + datos.audio).play();
+    estado.textContent = "";
+  } catch (e) {
+    estado.textContent = "No se pudo conectar con Atenea.";
+  }
+}
+
+document.getElementById("formulario").addEventListener("submit", e => {
+  e.preventDefault();
+  const campo = document.getElementById("texto");
+  const texto = campo.value.trim();
+  if (!texto) return;
+  campo.value = "";
+  agregar("usuario", texto);
+  enviar("/texto", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({texto})
+  });
+});
+
+// Grabar audio: un clic empieza, otro clic termina y envía
+let grabadora = null;
+botonMic.addEventListener("click", async () => {
+  if (grabadora && grabadora.state === "recording") {
+    grabadora.stop();
+    return;
+  }
+  try {
+    const flujo = await navigator.mediaDevices.getUserMedia({audio: true});
+    const partes = [];
+    grabadora = new MediaRecorder(flujo);
+    grabadora.ondataavailable = e => partes.push(e.data);
+    grabadora.onstop = () => {
+      flujo.getTracks().forEach(t => t.stop());
+      botonMic.textContent = "🎤 Hablar";
+      const formulario = new FormData();
+      formulario.append("audio", new Blob(partes, {type: grabadora.mimeType}), "orden");
+      enviar("/audio", {method: "POST", body: formulario});
+    };
+    grabadora.start();
+    botonMic.textContent = "⏹ Detener";
+    estado.textContent = "Escuchando...";
+  } catch (e) {
+    estado.textContent = "No se pudo usar el micrófono.";
+  }
+});
+
+// Tareas: formulario y lista de pendientes
+const listaTareas = document.getElementById("listaTareas");
+const estadoTarea = document.getElementById("estadoTarea");
+const campoFecha = document.getElementById("tareaFecha");
+campoFecha.value = new Date().toLocaleDateString("en-CA");  // hoy, en AAAA-MM-DD
+
+const verCompletadas = document.getElementById("verCompletadas");
+const conteoTareas = document.getElementById("conteoTareas");
+
+function celda(fila, texto, clase) {
+  const td = document.createElement("td");
+  td.textContent = texto;
+  if (clase) td.className = clase;
+  fila.appendChild(td);
+}
+
+// Checkbox para marcar o desmarcar la tarea como hecha; se guarda en la base de datos
+function celdaEstado(t) {
+  const td = document.createElement("td");
+  td.className = "estado";
+  const etiqueta = document.createElement("label");
+  const caja = document.createElement("input");
+  caja.type = "checkbox";
+  caja.checked = !!t.completada;
+  const texto = document.createTextNode(t.completada ? " Hecha" : " Pendiente");
+  caja.addEventListener("change", async () => {
+    caja.disabled = true;
+    try {
+      const r = await fetch("/tareas/" + t.id + "/completada", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({completada: caja.checked})
+      });
+      const datos = await r.json();
+      estadoTarea.textContent = datos.error || datos.resultado;
+      if (datos.error) caja.checked = !caja.checked;
+    } catch (e) {
+      caja.checked = !caja.checked;
+      estadoTarea.textContent = "No se pudo conectar con Atenea.";
+    }
+    cargarTareas();
+  });
+  etiqueta.append(caja, texto);
+  td.appendChild(etiqueta);
+  return td;
+}
+
+async function cargarTareas() {
+  try {
+    const url = "/tareas?todas=" + (verCompletadas.checked ? "1" : "0");
+    const tareas = (await (await fetch(url)).json()).tareas;
+    const pendientes = tareas.filter(t => !t.completada).length;
+    conteoTareas.textContent = tareas.length + " tareas (" + pendientes + " pendientes)";
+    listaTareas.innerHTML = "";
+    if (!tareas.length) {
+      listaTareas.innerHTML = '<p class="vacio">No hay tareas.</p>';
+      return;
+    }
+    const tabla = document.createElement("table");
+    tabla.innerHTML = "<tr><th>#</th><th>Título</th><th>Descripción</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr>";
+    for (const t of tareas) {
+      const fila = tabla.insertRow();
+      if (t.completada) fila.className = "hecha";
+      celda(fila, t.id);
+      celda(fila, t.titulo);
+      celda(fila, t.descripcion || "", "descripcion");
+      celda(fila, t.fecha, "fecha");
+      celda(fila, t.hora || "", "fecha");
+      fila.appendChild(celdaEstado(t));
+    }
+    listaTareas.appendChild(tabla);
+  } catch (e) {
+    conteoTareas.textContent = "";
+    listaTareas.innerHTML = '<p class="vacio">No se pudieron cargar las tareas.</p>';
+  }
+}
+verCompletadas.addEventListener("change", cargarTareas);
+
+document.getElementById("formTarea").addEventListener("submit", async e => {
+  e.preventDefault();
+  const tarea = {
+    titulo: document.getElementById("tareaTitulo").value,
+    descripcion: document.getElementById("tareaDescripcion").value,
+    fecha: campoFecha.value,
+    hora: document.getElementById("tareaHora").value
+  };
+  try {
+    const r = await fetch("/tareas", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(tarea)
+    });
+    const datos = await r.json();
+    estadoTarea.textContent = datos.error || datos.resultado;
+    if (!datos.error) {
+      document.getElementById("tareaTitulo").value = "";
+      document.getElementById("tareaDescripcion").value = "";
+      document.getElementById("tareaHora").value = "";
+      cargarTareas();
+    }
+  } catch (e) {
+    estadoTarea.textContent = "No se pudo conectar con Atenea.";
+  }
+});
+
+cargarTareas();
+
+// Proyectos: formulario y lista de abiertos (los cerrados solo si se pide)
+const listaProyectos = document.getElementById("listaProyectos");
+const estadoProyecto = document.getElementById("estadoProyecto");
+const conteoProyectos = document.getElementById("conteoProyectos");
+const verCerrados = document.getElementById("verCerrados");
+const fechaProyecto = document.getElementById("proyectoFecha");
+fechaProyecto.value = new Date().toLocaleDateString("en-CA");
+
+function parrafo(tarjeta, etiqueta, texto) {
+  const p = document.createElement("p");
+  const b = document.createElement("span");
+  b.className = "etiqueta";
+  b.textContent = etiqueta + ": ";
+  p.append(b, texto);
+  tarjeta.appendChild(p);
+}
+
+// Botón para cerrar (o reabrir) un proyecto; se guarda en la base de datos
+async function cambiarProyecto(p, boton) {
+  boton.disabled = true;
+  try {
+    const r = await fetch("/proyectos/" + p.id + "/abierto", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({abierto: !p.abierto})
+    });
+    const datos = await r.json();
+    estadoProyecto.textContent = datos.error || datos.resultado;
+  } catch (e) {
+    estadoProyecto.textContent = "No se pudo conectar con Atenea.";
+  }
+  cargarProyectos();
+}
+
+async function cargarProyectos() {
+  try {
+    const url = "/proyectos?todos=" + (verCerrados.checked ? "1" : "0");
+    const proyectos = (await (await fetch(url)).json()).proyectos;
+    const abiertos = proyectos.filter(p => p.abierto).length;
+    conteoProyectos.textContent = abiertos + (abiertos === 1 ? " proyecto abierto" : " proyectos abiertos");
+    listaProyectos.innerHTML = "";
+    if (!proyectos.length) {
+      listaProyectos.innerHTML = '<p class="vacio">No tienes proyectos abiertos.</p>';
+      return;
+    }
+    for (const p of proyectos) {
+      const tarjeta = document.createElement("div");
+      tarjeta.className = p.abierto ? "proyecto" : "proyecto cerrado";
+      const titulo = document.createElement("h3");
+      titulo.textContent = p.nombre;
+      const inicio = document.createElement("div");
+      inicio.className = "inicio";
+      inicio.textContent = "Iniciado el " + p.fecha_inicio + (p.abierto ? "" : " · cerrado");
+      tarjeta.append(titulo, inicio);
+      parrafo(tarjeta, "Descripción", p.descripcion || "sin descripción");
+      parrafo(tarjeta, "Objetivos", p.objetivos || "sin objetivos");
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.textContent = p.abierto ? "Cerrar proyecto" : "Reabrir";
+      boton.addEventListener("click", () => cambiarProyecto(p, boton));
+      tarjeta.appendChild(boton);
+      listaProyectos.appendChild(tarjeta);
+    }
+  } catch (e) {
+    conteoProyectos.textContent = "";
+    listaProyectos.innerHTML = '<p class="vacio">No se pudieron cargar los proyectos.</p>';
+  }
+}
+verCerrados.addEventListener("change", cargarProyectos);
+
+document.getElementById("formProyecto").addEventListener("submit", async e => {
+  e.preventDefault();
+  const proyecto = {
+    nombre: document.getElementById("proyectoNombre").value,
+    descripcion: document.getElementById("proyectoDescripcion").value,
+    objetivos: document.getElementById("proyectoObjetivos").value,
+    fecha_inicio: fechaProyecto.value
+  };
+  try {
+    const r = await fetch("/proyectos", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(proyecto)
+    });
+    const datos = await r.json();
+    estadoProyecto.textContent = datos.error || datos.resultado;
+    if (!datos.error) {
+      document.getElementById("proyectoNombre").value = "";
+      document.getElementById("proyectoDescripcion").value = "";
+      document.getElementById("proyectoObjetivos").value = "";
+      cargarProyectos();
+    }
+  } catch (e) {
+    estadoProyecto.textContent = "No se pudo conectar con Atenea.";
+  }
+});
+
+cargarProyectos();
+
+// Materiales: formulario, buscador y lista del inventario
+const listaMateriales = document.getElementById("listaMateriales");
+const estadoMaterial = document.getElementById("estadoMaterial");
+const conteoMateriales = document.getElementById("conteoMateriales");
+const buscarMaterial = document.getElementById("buscarMaterial");
+const soloDisponibles = document.getElementById("soloDisponibles");
+
+// Botones − y + para gastar o reponer unidades; se guarda en la base de datos
+function celdaCantidad(m) {
+  const td = document.createElement("td");
+  td.className = "cantidad";
+  const menos = document.createElement("button");
+  const mas = document.createElement("button");
+  const numero = document.createElement("span");
+  menos.type = mas.type = "button";
+  menos.textContent = "−";
+  mas.textContent = "+";
+  menos.title = "Usar una unidad";
+  mas.title = "Reponer una unidad";
+  menos.disabled = m.cantidad <= 0;
+  numero.className = "numero";
+  numero.textContent = m.cantidad;
+  for (const [boton, cambio] of [[menos, -1], [mas, 1]]) {
+    boton.addEventListener("click", async () => {
+      menos.disabled = mas.disabled = true;
+      try {
+        const r = await fetch("/materiales/" + m.id + "/cantidad", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({cambio})
+        });
+        const datos = await r.json();
+        estadoMaterial.textContent = datos.error || datos.resultado;
+      } catch (e) {
+        estadoMaterial.textContent = "No se pudo conectar con Atenea.";
+      }
+      cargarMateriales();
+    });
+  }
+  td.append(menos, numero, mas);
+  return td;
+}
+
+async function cargarMateriales() {
+  try {
+    const busqueda = buscarMaterial.value.trim();
+    const url = "/materiales?disponibles=" + (soloDisponibles.checked ? "1" : "0") +
+                "&buscar=" + encodeURIComponent(busqueda);
+    const materiales = (await (await fetch(url)).json()).materiales;
+    const disponibles = materiales.filter(m => m.cantidad > 0).length;
+    conteoMateriales.textContent = materiales.length + " materiales (" + disponibles + " disponibles)";
+    listaMateriales.innerHTML = "";
+    if (!materiales.length) {
+      const p = document.createElement("p");
+      p.className = "vacio";
+      p.textContent = busqueda ? "No hay " + busqueda + " en el inventario." : "No hay materiales registrados.";
+      listaMateriales.appendChild(p);
+      return;
+    }
+    const tabla = document.createElement("table");
+    tabla.innerHTML = "<tr><th>Material</th><th>Cantidad</th><th>Categoría</th><th>Ubicación</th><th>Notas</th></tr>";
+    for (const m of materiales) {
+      const fila = tabla.insertRow();
+      if (m.cantidad <= 0) fila.className = "agotado";
+      celda(fila, m.nombre);
+      fila.appendChild(celdaCantidad(m));
+      celda(fila, m.categoria || "");
+      celda(fila, m.ubicacion || "");
+      celda(fila, m.notas || "", "descripcion");
+    }
+    listaMateriales.appendChild(tabla);
+    // Sugerencias de categoría para el formulario con las que ya existen
+    if (!busqueda) {
+      const lista = document.getElementById("categorias");
+      lista.innerHTML = "";
+      for (const c of new Set(materiales.map(m => m.categoria).filter(Boolean))) {
+        const opcion = document.createElement("option");
+        opcion.value = c;
+        lista.appendChild(opcion);
+      }
+    }
+  } catch (e) {
+    conteoMateriales.textContent = "";
+    listaMateriales.innerHTML = '<p class="vacio">No se pudieron cargar los materiales.</p>';
+  }
+}
+soloDisponibles.addEventListener("change", cargarMateriales);
+// Busca mientras se escribe, con una pequeña pausa para no saturar al servidor
+let esperaBusqueda = null;
+buscarMaterial.addEventListener("input", () => {
+  clearTimeout(esperaBusqueda);
+  esperaBusqueda = setTimeout(cargarMateriales, 250);
+});
+
+document.getElementById("formMaterial").addEventListener("submit", async e => {
+  e.preventDefault();
+  const material = {
+    nombre: document.getElementById("materialNombre").value,
+    cantidad: document.getElementById("materialCantidad").value,
+    categoria: document.getElementById("materialCategoria").value,
+    ubicacion: document.getElementById("materialUbicacion").value,
+    notas: document.getElementById("materialNotas").value
+  };
+  try {
+    const r = await fetch("/materiales", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(material)
+    });
+    const datos = await r.json();
+    estadoMaterial.textContent = datos.error || datos.resultado;
+    if (!datos.error) {
+      for (const id of ["materialNombre", "materialUbicacion", "materialNotas"])
+        document.getElementById(id).value = "";
+      document.getElementById("materialCantidad").value = 1;
+      cargarMateriales();
+    }
+  } catch (e) {
+    estadoMaterial.textContent = "No se pudo conectar con Atenea.";
+  }
+});
+
+cargarMateriales();
+</script>
+</body>
+</html>

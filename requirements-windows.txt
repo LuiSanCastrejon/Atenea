@@ -1,0 +1,15 @@
+# Dependencias de Atenea para Windows (Python 3.11 de 64 bits)
+# llama-cpp-python se instala aparte desde instalar.bat con ruedas precompiladas
+numpy
+sounddevice
+soundfile
+faster-whisper
+piper-tts
+# webrtcvad necesita compilador en Windows; esta versión trae el binario listo
+webrtcvad-wheels
+# openWakeWord en Windows usa onnxruntime en lugar de tflite-runtime
+openwakeword
+onnxruntime
+flask
+wikipedia
+spotipy
